@@ -1,0 +1,201 @@
+<!doctype html>
+<html>
+	<head>
+		<title>Line Chart</title>
+	    <script src="jquery2.1.1.min.js"></script>
+            <script src="loadImgs.js"></script>
+	</head>
+        
+	<body>
+		<div style="width:50%;height:550px;">
+                     
+                    
+			
+                            <p id="asdf">asdf</p>
+                                <form id="input_form">
+                                Bilirubin level: <input type="text" id="bili_levels" name="bili_level" value="0" style="width:30px;"> mg/dL<br>
+                                Age in hours: <input type="text" id="hours" name="hours" value="0" style="width:30px;">
+                                plus days (optional): <input type="text" style="width:30px;" id="days" name="days" value="0"> 
+                                <button type="button" onclick="submitBtn();">Submit</button>
+                                </form>
+                        <div style="position:relative;">  
+                                <img id="background" style="position:absolute;" src="bili_combined_areas.png">
+				<canvas id="canvas" style="position:absolute;" height="400" width="600"></canvas>
+                               
+			</div>
+		</div>
+		<div style="width:50%;">
+			 <form id="input_form">
+                             Optional<br>
+                                <input type="radio" id="over37" name="weeks">35-37 weeks <input type="radio" id="over37" name="weeks">   38 weeks and over  <br>
+                                <input type="radio" id="riskfactors" name="riskfactors">Risk factors present <input type="radio" id="well" name="riskfactors">Well
+                                </form>
+                            
+                        <div style="position:relative;">  
+                                <img id="background2" style="position:absolute;" height="400" width="600" src="phototherapy_combined2.png">
+				<canvas id="canvas2" style="position:absolute;" height="400" width="600"></canvas>
+                               
+			</div>
+		</div>            
+
+
+	<script>
+            
+            //set up canvas1
+            var canvas = document.getElementById("canvas");
+            var background = document.getElementById("background");
+            background.width=canvas.width;
+            background.height = canvas.height;
+            var ctx = document.getElementById("canvas").getContext("2d");
+            
+            //set up canvas2
+            var canvas2 = document.getElementById("canvas2");
+            var background2 = document.getElementById("background2");
+            background2.width=canvas2.width;
+            background2.height = canvas2.height;
+            var ctx2 = document.getElementById("canvas2").getContext("2d");
+
+            //get reference coordinates
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            var x_ori = canvas.width*7.6/100;
+            var y_bigbot = canvas.height*88/100;
+            var x_max = canvas.width*92.9/100;
+            var y_smtop = canvas.height*2/100;
+            var dot_x=-50;
+            var dot_y=y_bigbot;
+            var goal_x=-50;
+            var goal_y=y_bigbot;
+            var dot_rad=canvas.width/70;
+            
+            //get reference coordinates2
+            ctx.clearRect(0, 0, canvas2.width, canvas2.height);
+            var x_ori2 = canvas2.width*11.55/100;
+            var y_bigbot2 = canvas2.height*86.2/100;
+            var x_max2 = canvas2.width*97.2/100;
+            var y_smtop2 = canvas2.height*8.3/100;
+            var dot_x2=0;
+            var dot_y2=y_bigbot2;
+            var goal_x2=0;
+            var goal_y2=y_bigbot2;
+            var dot_rad2=canvas2.width/70;
+                
+            var weeksRadios = document.getElementsByName('weeks');
+            var riskRadios  = document.getElementsByName('riskfactors');
+	
+
+            function submitBtn(){
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                var bili_levels=document.getElementById("bili_levels").value;
+                var hours=Number(document.getElementById("hours").value);
+                var days=Number(document.getElementById("days").value);
+                hours=hours+days*24;
+                goal_x=x_ori+(hours/148)*(x_max-x_ori);
+                goal_y=y_smtop+(1-bili_levels/25)*(y_bigbot-y_smtop);  
+                
+                ctx2.clearRect(0, 0, canvas2.width, canvas2.height);
+                var bili_levels2=document.getElementById("bili_levels").value;
+                goal_x2=x_ori2+(hours/(180))*(x_max2-x_ori2);
+                goal_y2=y_smtop2+(1-bili_levels2/25)*(y_bigbot2-y_smtop2); 
+
+            }
+
+
+            function update(){
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx2.clearRect(0, 0, canvas.width, canvas.height);
+                
+                document.getElementById("asdf").style.visibility = "hidden" ;
+                                
+                
+                //move dot for ctx
+                if(goal_x-dot_x<canvas.width/50 && dot_x-goal_x<canvas.width/50){  //if within 3, finish travels
+                        dot_x=goal_x;
+                        if(goal_y-dot_y<canvas.height/50 && dot_y-goal_y<canvas.height/50){
+                            dot_y=goal_y;
+                        }else if(dot_y < goal_y){
+                            dot_y+=canvas.height/100;
+                        }else if(dot_y > goal_y){
+                            dot_y-=canvas.height/100;;//(goal_y*1.2-dot_y)/100;
+                        }
+                }else if(dot_x < goal_x){
+                    dot_x+=canvas.width/50;                  
+                }else if(dot_x > goal_x){
+                    dot_x-=canvas.width/50;//(goal_x*1.2-dot_x)/100;
+                }
+                var renderDot_x=dot_x-dot_rad/2;
+                var renderDot_y=dot_y-dot_rad/2;
+                //prepare for rendering
+                
+                if(dot_x===goal_x && dot_y===goal_y && elapsed%500<100){
+                    ctx.drawImage(dotWhiteImage,renderDot_x,renderDot_y,dot_rad,dot_rad);  
+                }else{
+                    ctx.drawImage(dotImage,renderDot_x,renderDot_y,dot_rad,dot_rad);  
+                }
+
+                 
+                                //move dot for ctx
+                if(goal_x2-dot_x2<canvas2.width/50 && dot_x2-goal_x2<canvas2.width/50){
+                        dot_x2=goal_x2;
+                        if(goal_y2-dot_y2<canvas2.height/50 && dot_y2-goal_y2<canvas2.height/50){
+                            dot_y2=goal_y2;
+                        }else if(dot_y2 < goal_y2){
+                            dot_y2+=canvas2.height/100;              
+                        }else if(dot_y2 > goal_y2){
+                            dot_y2-=canvas2.height/100;
+                        }
+                }else if(dot_x2 < goal_x2){
+                    dot_x2+=canvas2.width/100;                  
+                }else if(dot_x2 > goal_x2){
+                    dot_x2-=canvas2.width/100;
+                }
+                var renderDot_x2=dot_x2-dot_rad2/2;
+                var renderDot_y2=dot_y2-dot_rad2/2;
+                //prepare for rendering
+                
+                //blink the dots
+                if(dot_x===goal_x && dot_y===goal_y && elapsed%500<100){
+                     ctx2.drawImage(dotWhiteImage,renderDot_x2,renderDot_y2,dot_rad2,dot_rad2);  
+                }else{
+                    ctx2.drawImage(dotImage,renderDot_x2,renderDot_y2,dot_rad2,dot_rad2);                  
+                }
+       
+                
+                //update phototherapy image
+                if (weeksRadios[0].checked && riskRadios[0].checked) {
+                    background2.src="phototherapy_combined_high.png";
+                }else if(weeksRadios[0].checked && riskRadios[1].checked) {
+                    background2.src="phototherapy_combined2_med.png";
+                }else if(weeksRadios[1].checked && riskRadios[0].checked) {
+                    background2.src="phototherapy_combined2_med.png";
+                }else if(weeksRadios[1].checked && riskRadios[1].checked) {
+                    background2.src="phototherapy_combined2_low.png";
+                }else{
+                    background2.src="phototherapy_combined2.png";
+                }
+
+    
+            }
+
+
+            // The main  loop
+            var main = function () {
+                    now = Date.now();
+                    interval = now - then;
+                    elapsed = now-initTime;
+                    update();
+                    then = now;
+
+
+            };
+
+            //initiate timing variables
+            var initTime = Date.now();
+            var elapsed = 0;
+            var interval = 0;
+            var now = 0;
+            var then = Date.now();
+            setInterval(main, 10); // Execute as fast as possible
+   
+	</script>
+	</body>
+</html>
