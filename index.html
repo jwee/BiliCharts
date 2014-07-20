@@ -8,7 +8,7 @@
         
 	<body>
 		<div style="width:50%;height:550px;">
-                    <p>Under Construction</p>
+                    <h1>Under Construction, do not use this for anything :-)</h1>
                     
 			
                             <p id="asdf">asdf</p>
@@ -23,6 +23,11 @@
 				<canvas id="canvas" style="position:absolute;" height="400" width="600"></canvas>
                                
 			</div>
+                        <div id="recommendations_top" style="position:relative;left:600px;visibility:hidden;">
+                                <img id="recommendations_top" style="position:relative;" height="400" width="600" src="recommendations.png">
+
+                        </div>    
+
 		</div>
 		<div style="width:50%;">
 			 <form id="input_form">
@@ -54,6 +59,10 @@
             background2.width=canvas2.width;
             background2.height = canvas2.height;
             var ctx2 = document.getElementById("canvas2").getContext("2d");
+            
+            //set up recomm top 
+            var rec_top = document.getElementById("recommendations_top");
+
 
             //get reference coordinates
             ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -96,6 +105,8 @@
                 var bili_levels2=document.getElementById("bili_levels").value;
                 goal_x2=x_ori2+(hours/(180))*(x_max2-x_ori2);
                 goal_y2=y_smtop2+(1-bili_levels2/25)*(y_bigbot2-y_smtop2); 
+                
+                rec_top.style.visibility="visible";
 
             }
 
