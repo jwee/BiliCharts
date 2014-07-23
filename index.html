@@ -7,8 +7,8 @@
 	</head>
         
 	<body>
-		<div style="width:50%;height:550px;">
-                    <h1>Under Construction, do not use this for anything :-)</h1>
+		<div style="width:50%;height:550px;margin:0 auto;">
+                    <dcenter><h2>BiliCharts, for neonates and providers</h2></center>
                     
 			
                             <p id="asdf">asdf</p>
@@ -29,20 +29,22 @@
                         </div>    
 
 		</div>
-		<div style="width:50%;">
-			 <form id="input_form">
-                             Optional<br>
-                                <input type="radio" id="over37" name="weeks">35-37 weeks <input type="radio" id="over37" name="weeks">   38 weeks and over  <br>
-                                <input type="radio" id="riskfactors" name="riskfactors">Risk factors present <input type="radio" id="well" name="riskfactors">Well
-                                </form>
+		<div style="width:50%;margin:0 auto;">
+			 <form id="input_form" >
+                             <h4 id="photo_level_title" style="display:inline">Phototherapy Risk Level (Optional)</h4><br>
+                             <input type="radio" id="over37" name="weeks">35-37 weeks <input type="radio" id="over37" name="weeks">   38 weeks and over  <br>
+                                <input type="radio" id="riskfactors" name="riskfactors">Risk factors present <input type="radio" id="well" name="riskfactors">No risk factors present <p id="see_risk_factors" style="color:blue;display:inline">See risk factors</p>
+                         </form>
+                    
+                    
                             
                         <div style="position:relative;">  
-                                <img id="background2" style="position:absolute;" height="400" width="600" src="phototherapy_combined2.png">
+                                <img id="background2" style="position:absolute;" height="400" width="700" src="phototherapy_combined2.png">
 				<canvas id="canvas2" style="position:absolute;" height="400" width="600"></canvas>
                                
 			</div>
 		</div>            
-
+                
 
 	<script>
             
@@ -60,11 +62,27 @@
             background2.height = canvas2.height;
             var ctx2 = document.getElementById("canvas2").getContext("2d");
             
-            //set up recomm top 
+            //other elements 
             var rec_top = document.getElementById("recommendations_top");
+            var see_RF = document.getElementById("see_risk_factors");
+            see_RF.style.textDecoration='underline';
+            var see_RF_switch = 0;
+            see_RF.onclick = function() {
+              if(see_RF_switch===0){
+                see_RF.innerHTML="Risk factors (phototherapy): Isoimmune hemolytic disease, G6PD deficiency, asphyxia, significant lethargy, temperature instability, sepsis, acidosis, or albumin <3.0 g/dL if measured";
+                see_RF.style.textDecoration='none';
+                see_RF.style.color='#b05252';
+                see_RF_switch=1;
+              }else{
+                see_RF_switch=0;
+                see_RF.innerHTML="See risk factors";
+                see_RF.style.color='blue';
+                see_RF.style.textDecoration='underline';
+              }
+            };
+            var photo_level_title = document.getElementById("photo_level_title");
 
-
-            //get reference coordinates
+    //get reference coordinates
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             var x_ori = canvas.width*7.6/100;
             var y_bigbot = canvas.height*88/100;
@@ -170,20 +188,28 @@
                     ctx2.drawImage(dotImage,renderDot_x2,renderDot_y2,dot_rad2,dot_rad2);                  
                 }
        
-                /*
+                
                 //update phototherapy image
                 if (weeksRadios[0].checked && riskRadios[0].checked) {
-                    background2.src="phototherapy_combined_high.png";
+                    photo_level_title.innerHTML="Phototherapy Risk Level: Higher.";
+                    photo_level_title.style.color="#f30000";
+                    //background2.src="phototherapy_combined_high.png";
                 }else if(weeksRadios[0].checked && riskRadios[1].checked) {
-                    background2.src="phototherapy_combined2_med.png";
+                    photo_level_title.innerHTML="Phototherapy Risk Level: Medium.";
+                    photo_level_title.style.color="#b05252"; 
+                    //background2.src="phototherapy_combined2_med.png";
                 }else if(weeksRadios[1].checked && riskRadios[0].checked) {
-                    background2.src="phototherapy_combined2_med.png";
+                    photo_level_title.innerHTML="Phototherapy Risk Level: Medium.";
+                    photo_level_title.style.color="#b05252";                    
+                    //background2.src="phototherapy_combined2_med.png";
                 }else if(weeksRadios[1].checked && riskRadios[1].checked) {
-                    background2.src="phototherapy_combined2_low.png";
+                    photo_level_title.innerHTML="Phototherapy Risk Level: Lower.";
+                    photo_level_title.style.color="#724747";
+                //background2.src="phototherapy_combined2_low.png";
                 }else{
                     background2.src="phototherapy_combined2.png";
                 }
-                */
+                
     
             }
 
@@ -208,5 +234,7 @@
             setInterval(main, 10); // Execute as fast as possible
    
 	</script>
+        
+        
 	</body>
 </html>
