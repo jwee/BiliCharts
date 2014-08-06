@@ -7,34 +7,44 @@
 	</head>
         
 	<body>
-		<div style="width:50%;height:550px;margin:0 auto;">
-                    <dcenter><h2>BiliCharts, (in development)</h2></center>
+            
+            
+		<div style="width:50%;margin:0 auto;">
+                    <center><h2>BiliCharts, (in development)</h2></center>
                     
 			
-                            <p id="asdf">asdf</p>
-                                <form id="input_form">
-                                Bilirubin level: <input type="text" id="bili_levels" name="bili_level" value="0" style="width:30px;"> mg/dL<br>
-                                Age in hours: <input type="text" id="hours" name="hours" value="0" style="width:30px;">
-                                plus days (optional): <input type="text" style="width:30px;" id="days" name="days" value="0"> 
-                                <button type="button" onclick="submitBtn();">Submit</button>
-                                </form>
-                        <div style="position:relative;">  
-                                <img id="background" style="position:absolute;" src="bili_combined_areas.png">
-				<canvas id="canvas" style="position:absolute;" height="400" width="600"></canvas>
-                               
-			</div>
-                        <div id="recommendations_top" style="position:relative;left:600px;visibility:hidden;">
-                                <img id="recommendations_top" style="position:relative;" height="400" width="600" src="recommendations.png">
+                    <p id="asdf">asdf</p>
+                    <form id="input_form">
+                        Bilirubin level: <input type="text" id="bili_levels" name="bili_level" value="0" style="width:30px;"> mg/dL<br>
+                        Age in hours: <input type="text" id="hours" name="hours" value="0" style="width:30px;">
+                        plus days (optional): <input type="text" style="width:30px;" id="days" name="days" value="0"> 
+                        <br>
+                        <br>
+                        <p id="photo_level_title" style="display:inline">Risk information</p><br>
+                        <input type="radio" id="over37" name="weeks">35-37 weeks <input type="radio" id="over37" name="weeks">   38 weeks and over  
+                        <br>
+                        <input type="radio" id="riskfactors" name="riskfactors">Risk factors present <input type="radio" id="well" name="riskfactors">No risk factors present 
+                        <br>
+                        <p id="see_risk_factors" style="color:blue;display:inline">See risk factors</p>
+                        <br>
+                        <br>
+                        <button type="button" onclick="submitBtn();">Submit</button>
+                                
+                            
+                    </form>
+                    <div>
+                        <br>
+                        <h2  style="display:inline;" id="line_status"></h2>
+                        <p style="display:inline;" id="risk_status"></p>
+                        <br>
+                          <p  id="light_level"></p>
+                    </div>
 
-                        </div>    
+                             </div>              
+                            
+                            
+            <div style="width:50%;height:550px;margin:0 auto;">
 
-		</div>
-		<div style="width:50%;margin:0 auto;">
-			 <form id="input_form" >
-                             <h4 id="photo_level_title" style="display:inline">Phototherapy Risk Level (Optional)</h4><br>
-                             <input type="radio" id="over37" name="weeks">35-37 weeks <input type="radio" id="over37" name="weeks">   38 weeks and over  <br>
-                                <input type="radio" id="riskfactors" name="riskfactors">Risk factors present <input type="radio" id="well" name="riskfactors">No risk factors present <p id="see_risk_factors" style="color:blue;display:inline">See risk factors</p>
-                         </form>
                     
                     
                             
@@ -43,12 +53,31 @@
 				<canvas id="canvas2" style="position:absolute;" height="400" width="600"></canvas>
                                
 			</div>
-		</div>            
+                                  
+            </div>                                   
+                            
+            
+            <div style="width:50%;height:550px;margin:0 auto;position:relative;">  
+                    <img id="background" style="position:absolute;" src="bili_combined_areas.png">
+                    <canvas id="canvas" style="position:absolute;" height="400" width="600"></canvas>
+
+
+
+                    <div id="recommendations_top" style="position:relative;left:600px;visibility:hidden;">
+                            <img id="recommendations_top" style="position:relative;" height="400" width="600" src="recommendations.png">
+                    </div>    
+
+            </div>
+ 
+
+     
                 
 
 	<script>
             
             //set up canvas1
+            var asdf = document.getElementById("asdf");
+           
             var canvas = document.getElementById("canvas");
             var background = document.getElementById("background");
             background.width=canvas.width;
@@ -63,6 +92,11 @@
             var ctx2 = document.getElementById("canvas2").getContext("2d");
             
             //other elements 
+            var photoStatus=0;  
+            var cutoff;
+            var photo_status_text= document.getElementById('line_status');
+            var light_level_text= document.getElementById('light_level');
+            var risk_status_text = document.getElementById("risk_status");
             var rec_top = document.getElementById("recommendations_top");
             var see_RF = document.getElementById("see_risk_factors");
             see_RF.style.textDecoration='underline';
@@ -108,9 +142,61 @@
                 
             var weeksRadios = document.getElementsByName('weeks');
             var riskRadios  = document.getElementsByName('riskfactors');
-	
+            
+            
+            //array data for figure 1
+            //for phototherapy, arr[0] correspond to 0 hour, then 6,12 etc. Measurements made on enlarged images.
+            var photo_hi_risk=[3.6, 4.8,5.8,6.8,7.6,8.5,9.5,10.3,11.1,11.8,12.3,12.95,13.5,13.7,14,14.2,14.5,14.7,14.9,15,15,15,15,15,15,15,15,15,15];
+            var photo_med_risk=[5,6.2,7.5,8.7,9.7,10.6,11.3,12.2,13.0,13.8,14.4,14.9,15.3,15.9,16.3,16.8,17.2,17.6,17.9,18,18,18,18,18,18,18,18,18,18];
+            var photo_low_risk=[6.4,7.8,9.2,10.3,11.4,12.5,13.4,14.4,15.2,15.8,16.3,17,17.5,18.1,18.7,19.2,19.8,20.1,20.4,20.7,21,21,21,21,21,21,21,21,21];
+
+            function getPhotoStatus(hours, bili, photoStatus){
+                
+                var referenceLine=[];
+                if(photoStatus===1){
+                    referenceLine=photo_hi_risk;
+                    risk_status_text.innerHTML="(High Risk Curve)"
+                }else if(photoStatus===2){
+                    referenceLine=photo_med_risk;
+                    risk_status_text.innerHTML="(Medium Risk Curve)"
+                }else if(photoStatus===3){
+                    referenceLine=photo_low_risk;
+                    risk_status_text.innerHTML="(Low Risk Curve)"
+
+                }                     
+                for(var i=0;i<referenceLine.length-1;i++){
+                    if(hours>=i*6  && hours<(6*(i+1))){
+                        
+                        var overLine = overLineOrNo(i*6,referenceLine[i],i*6+6,referenceLine[i+1],hours, bili);
+                        if(overLine===true){
+                            return true; //1 signifies higher than line segments
+                            
+                        }else{
+                            continue;
+                        }
+                    }
+                }
+                //if nothing found in for loop over the line
+                return false; //signifies none of values above line segments
+            }
+
+            function overLineOrNo(x1,y1,x2,y2,hours_submitted,bili_submitted){
+                var slope=(y2-y1)/(x2-x1);
+                var y_int = y2-slope*x2;
+                cutoff=hours_submitted*slope+y_int; //0.2 safety factor for thickness of lines
+                light_level_text.innerHTML="Light Level: "+Math.round(cutoff*1000)/1000+" (linear estimation, inexact)";
+                
+                   
+                if(cutoff<bili_submitted){
+                    return true;
+                }else{
+                    return false;
+                    
+                }
+            }
 
             function submitBtn(){
+                //photo_status_text.style.visibility="hidden";
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
                 var bili_levels=document.getElementById("bili_levels").value;
                 var hours=Number(document.getElementById("hours").value);
@@ -124,9 +210,49 @@
                 goal_x2=x_ori2+(hours/(180))*(x_max2-x_ori2);
                 goal_y2=y_smtop2+(1-bili_levels2/25)*(y_bigbot2-y_smtop2); 
                 
+                                //photo status stuff
+             
+                if (weeksRadios[0].checked && riskRadios[0].checked) {
+                    photoStatus=1;
+                    //photo_level_title.innerHTML="Phototherapy Risk Level: Higher.";
+                    //photo_level_title.style.color="#f30000";
+                    //background2.src="phototherapy_combined_high.png";
+                }else if(weeksRadios[0].checked && riskRadios[1].checked) {
+                    photoStatus=2;
+                    //photo_level_title.innerHTML="Phototherapy Risk Level: Medium.";
+                    //photo_level_title.style.color="#b05252"; 
+                    //background2.src="phototherapy_combined2_med.png";
+                }else if(weeksRadios[1].checked && riskRadios[0].checked) {
+                    photoStatus=2;
+                    //photo_level_title.innerHTML="Phototherapy Risk Level: Medium.";
+                    //photo_level_title.style.color="#b05252";                    
+                    //background2.src="phototherapy_combined2_med.png";
+                }else if(weeksRadios[1].checked && riskRadios[1].checked) {
+                    photoStatus=3;
+                    //photo_level_title.innerHTML="Phototherapy Risk Level: Lower.";
+                   //photo_level_title.style.color="#724747";
+                //background2.src="phototherapy_combined2_low.png";
+                }else{
+                    background2.src="phototherapy_combined2.png";
+                }
+        
+                var aboveLightLine = getPhotoStatus(hours, bili_levels, photoStatus);              
                 rec_top.style.visibility="visible";
-
+                if(aboveLightLine){
+                    photo_status_text.style.color="#f30000";
+                    photo_status_text.innerHTML="Above phototherapy light level";
+                }else{
+                    photo_status_text.style.color="#00f300";
+                    photo_status_text.innerHTML="Below phototherapy light level";
+                }
             }
+
+
+
+
+
+
+
 
 
             function update(){
@@ -186,37 +312,14 @@
                      ctx2.drawImage(dotWhiteImage,renderDot_x2,renderDot_y2,dot_rad2,dot_rad2);  
                 }else{
                     ctx2.drawImage(dotImage,renderDot_x2,renderDot_y2,dot_rad2,dot_rad2);                  
-                }
-       
-                
-                //update phototherapy image
-                if (weeksRadios[0].checked && riskRadios[0].checked) {
-                    photo_level_title.innerHTML="Phototherapy Risk Level: Higher.";
-                    photo_level_title.style.color="#f30000";
-                    //background2.src="phototherapy_combined_high.png";
-                }else if(weeksRadios[0].checked && riskRadios[1].checked) {
-                    photo_level_title.innerHTML="Phototherapy Risk Level: Medium.";
-                    photo_level_title.style.color="#b05252"; 
-                    //background2.src="phototherapy_combined2_med.png";
-                }else if(weeksRadios[1].checked && riskRadios[0].checked) {
-                    photo_level_title.innerHTML="Phototherapy Risk Level: Medium.";
-                    photo_level_title.style.color="#b05252";                    
-                    //background2.src="phototherapy_combined2_med.png";
-                }else if(weeksRadios[1].checked && riskRadios[1].checked) {
-                    photo_level_title.innerHTML="Phototherapy Risk Level: Lower.";
-                    photo_level_title.style.color="#724747";
-                //background2.src="phototherapy_combined2_low.png";
-                }else{
-                    background2.src="phototherapy_combined2.png";
-                }
-                
-    
+                }         
             }
 
 
             // The main  loop
             var main = function () {
                     now = Date.now();
+                    //canvas.innerHTML="Below line";
                     interval = now - then;
                     elapsed = now-initTime;
                     update();
